@@ -3,7 +3,8 @@ use std::fs::File;
 use std::collections::HashMap;
 use std::path::{Path};
 
-use crate::TokiPonaWord;
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub struct TokiPonaWord(u32);
 
 #[derive(Debug, Clone)]
 struct PuEntry {
@@ -20,27 +21,6 @@ pub struct Pu {
 }
 
 impl Pu {
-    pub fn from_subset(defs : &[(&'static str, &'static str)]) -> Self {
-        let mut lookup = HashMap::new();
-        let mut definitions = Vec::new();
-        let mut cur_word = 0;
-
-        for (toki_pona, english) in defs {
-            lookup.insert(toki_pona.to_string(), TokiPonaWord(cur_word));
-            definitions.push(PuEntry {
-                toki_pona : toki_pona.to_string(),
-                definition : english.to_string(),
-            });
-
-            cur_word += 1;
-        }
-
-        Self {
-            lookup,
-            definitions,
-        }
-    }
-
     pub fn read(path : &Path) -> Self {
         let file = File::open(path).unwrap();
         let reader = BufReader::new(file);
@@ -72,6 +52,28 @@ impl Pu {
         }
     }
 
+    // Used for tests
+    pub(crate) fn from_subset(defs : &[(&'static str, &'static str)]) -> Self {
+        let mut lookup = HashMap::new();
+        let mut definitions = Vec::new();
+        let mut cur_word = 0;
+
+        for (toki_pona, english) in defs {
+            lookup.insert(toki_pona.to_string(), TokiPonaWord(cur_word));
+            definitions.push(PuEntry {
+                toki_pona : toki_pona.to_string(),
+                definition : english.to_string(),
+            });
+
+            cur_word += 1;
+        }
+
+        Self {
+            lookup,
+            definitions,
+        }
+    }
+
     pub fn get(&self, word : &TokiPonaWord) -> &str {
         &self.definitions[word.0 as usize].toki_pona
     }
@@ -84,16 +86,4 @@ impl Pu {
         self.lookup.get(s).cloned()
     }
 
-    pub fn get_string(&self, compound_word : &crate::CompoundWord) -> String {
-        let mut word = String::new();
-        for tp in &compound_word.toki_pona {
-            if (!word.is_empty()) {
-                word.push(' ');
-            }
-
-            word.push_str(self.get(tp));
-        }
-
-        word
-    }
 }

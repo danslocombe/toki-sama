@@ -1,24 +1,16 @@
 use std::str::FromStr;
 use radix_trie::{Trie, TrieCommon};
 
-use crate::pu::Pu;
-use crate::TokiPonaWord;
+use crate::pu::{Pu, TokiPonaWord};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CompoundWord {
     // Almost all words won't be longer than 4 
-    pub toki_pona : smallvec::SmallVec::<[TokiPonaWord; 4]>,
+    toki_pona : smallvec::SmallVec::<[TokiPonaWord; 4]>,
 }
-
 
 impl CompoundWord {
     fn dist(&self, other : &Self) -> u32 {
-        //let mut unique : smallvec::SmallVec::<[TokiPonaWord;8]> = smallvec::SmallVec::new();
-
-        //for x in &self.toki_pona {
-            //unique.push(*x);
-        //}
-
         let mut dist = self.toki_pona.len() + other.toki_pona.len();
 
         for y in &other.toki_pona {
@@ -29,37 +21,20 @@ impl CompoundWord {
 
         dist as u32
     }
-}
-/*
-impl vpsearch::MetricSpace for CompoundWord {
-    type UserData = ();
-    type Distance = u32;
 
-    fn distance(&self, other : &Self, _: &Self::UserData) -> Self::Distance {
-        let (min, max) = if self.toki_pona.len() > other.toki_pona.len() {
-            (other, self)
-        }
-        else {
-            (self, other)
-        };
-
-        let mut dist = max.toki_pona.len();
-
-        for x in &min.toki_pona {
-            for y in &max.toki_pona {
-                if (x == y) {
-                    dist -= 1;
-                    break;
-                }
+    fn to_string(&self, pu : &Pu) -> String{
+        let mut word = String::new();
+        for tp in &self.toki_pona {
+            if (!word.is_empty()) {
+                word.push(' ');
             }
+
+            word.push_str(pu.get(tp));
         }
 
-        dist as u32
+        word
     }
 }
-*/
-
-
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Translation {
@@ -189,7 +164,7 @@ impl TokiSama {
                 similar.push(ThesaurusResult {
                     english : e.english.clone(),
                     toki_pona: e.toki_pona.clone(),
-                    toki_pona_string : pu.get_string(&e.toki_pona),
+                    toki_pona_string : e.toki_pona.to_string(pu),
                     dist,
                 });
 
@@ -203,7 +178,7 @@ impl TokiSama {
             english_search : search_string.to_owned(),
             entry_english : entry.english.to_owned(),
             original_translation : entry.toki_pona.clone(),
-            original_translation_string : pu.get_string(&entry.toki_pona),
+            original_translation_string : entry.toki_pona.to_string(pu),
             weight : entry.weight,
             similar,
         }
