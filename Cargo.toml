@@ -7,5 +7,8 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-vpsearch = "2.0.1"
 smallvec = "1.6.1"
+radix_trie = "0.2"
+# vpsearch = "2.0.1"
+# petal-neighbors = "0.7.1"
+# ndarray = "0.15.3"
