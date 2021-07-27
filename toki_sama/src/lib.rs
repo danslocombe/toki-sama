@@ -4,6 +4,7 @@ pub mod pu;
 
 use radix_trie::{Trie, TrieCommon};
 use std::str::FromStr;
+use serde::Serialize;
 
 use pu::{Pu, TokiPonaWord};
 
@@ -162,7 +163,7 @@ impl TokiSama {
             posting_lists.get_mut(value_rank).unwrap().push(entry_rank);
         }
 
-        for mut posting_list in posting_lists.iter_mut() {
+        for posting_list in posting_lists.iter_mut() {
             posting_list.sort_by(|x, y| {
                 dictionary.entries[*y as usize].weight.cmp(&dictionary.entries[*x as usize].weight)
             })
@@ -194,7 +195,7 @@ impl TokiSama {
             if (dist <= max_dist) {
                 similar.push(ThesaurusResult {
                     english: e.english.clone(),
-                    toki_pona: e.toki_pona.clone(),
+                    toki_pona_len : e.toki_pona.len() as u32,
                     toki_pona_string: e.toki_pona.to_string(pu),
                     dist,
                 });
@@ -203,7 +204,7 @@ impl TokiSama {
 
         similar.sort_by(|x, y| {
             x.dist.cmp(&y.dist)
-                .then(x.toki_pona.len().cmp(&y.toki_pona.len()))
+                .then(x.toki_pona_len.cmp(&y.toki_pona_len))
         });
 
         similar = similar.into_iter().take(MAX).collect();
@@ -212,7 +213,6 @@ impl TokiSama {
             english_search: search_string.to_owned(),
             entry_english: entry.english.to_owned(),
             entry_weight : entry.weight,
-            original_translation: entry.toki_pona.clone(),
             original_translation_string: entry.toki_pona.to_string(pu),
             similar,
         }
@@ -244,20 +244,19 @@ impl TokiSama {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct ThesaurusResult {
     english: String,
-    toki_pona: CompoundWord,
+    toki_pona_len : u32,
     toki_pona_string: String,
     dist: u32,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct Completion {
     english_search: String,
     entry_english: String,
     entry_weight : u32,
-    original_translation: CompoundWord,
     original_translation_string: String,
     similar: Vec<ThesaurusResult>,
 }

@@ -21,17 +21,13 @@ pub struct Pu {
 }
 
 impl Pu {
-    pub fn read(path: &Path) -> Self {
-        let file = File::open(path).unwrap();
-        let reader = BufReader::new(file);
-
-        let mut lookup = HashMap::with_capacity(150);
-        let mut definitions = Vec::with_capacity(150);
+    pub fn from_lines(lines : &Vec<String>) -> Self {
+        let mut lookup = HashMap::with_capacity(lines.len());
+        let mut definitions = Vec::with_capacity(lines.len());
 
         // First line is definitions
         let mut cur_word = 0;
-        for read_line in reader.lines().skip(1) {
-            let line = read_line.unwrap();
+        for line in &lines[1..] {
             let splits: Vec<&str> = line.split(',').collect();
             let toki_pona = splits[0].to_owned();
             let _alternative = splits[1];
@@ -52,8 +48,15 @@ impl Pu {
         }
     }
 
-    // Used for tests
-    pub(crate) fn from_subset(defs: &[(&'static str, &'static str)]) -> Self {
+    pub fn read(path: &Path) -> Self {
+        let file = File::open(path).unwrap();
+        let reader = BufReader::new(file);
+
+        Self::from_lines(&reader.lines().map(|x| x.unwrap()).collect())
+    }
+
+    #[cfg(test)]
+    pub fn from_subset(defs: &[(&'static str, &'static str)]) -> Self {
         let mut lookup = HashMap::new();
         let mut definitions = Vec::new();
         let mut cur_word = 0;
