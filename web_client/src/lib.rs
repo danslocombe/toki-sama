@@ -71,9 +71,9 @@ impl TokiSamaSearch {
 
         // TODO improve lookup perf in wasm before enabling this
         // build vantage point tree or smth
-        //log!("Reading model");
-        //let model = read_model(model_str, &pu);
-        //dict.merge_with(model);
+        log!("Reading model");
+        let model = read_model(model_str, &pu);
+        dict.merge_with(model);
 
         let toki_sama = TokiSama::new(dict);
 
