@@ -1,14 +1,10 @@
 #![allow(unused_parens)]
 
-mod pu;
-mod toki_sama;
-
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::path::{Path, PathBuf};
 
-use pu::Pu;
-use toki_sama::*;
+use toki_sama::{*, pu::*};
 
 fn read_wordset(path: &Path, pu: &Pu) -> Dictionary {
     let file = File::open(path).unwrap();
@@ -45,6 +41,7 @@ fn read_compounds(pu: &Pu) -> Dictionary {
 
 fn get_data_path() -> PathBuf {
     let mut path = Path::new(env!("CARGO_MANIFEST_DIR")).to_path_buf();
+    path.push("..");
     path.push("data");
     path
 }

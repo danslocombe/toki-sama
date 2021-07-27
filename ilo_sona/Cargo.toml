@@ -1,5 +1,5 @@
 [package]
-name = "ilo-sona"
+name = "ilo_sona"
 version = "0.1.0"
 edition = "2018"
 
@@ -7,3 +7,4 @@ edition = "2018"
 
 [dependencies]
 unicase = "2.6.0"
+toki_sama = { path = "../toki_sama" }

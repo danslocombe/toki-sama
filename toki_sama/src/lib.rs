@@ -1,7 +1,11 @@
+#![allow(unused_parens)]
+
+pub mod pu;
+
 use radix_trie::{Trie, TrieCommon};
 use std::str::FromStr;
 
-use crate::pu::{Pu, TokiPonaWord};
+use pu::{Pu, TokiPonaWord};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CompoundWord {
