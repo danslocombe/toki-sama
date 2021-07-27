@@ -97,25 +97,46 @@ impl Translation {
         Some(defs)
     }
 
-    // For now parse as individual words?
     pub fn try_from_model(line : &str, pu : &Pu) -> Option<Vec<Self>> {
         let mut translations = Vec::new();
         let splits : Vec<_> = line.split('\t').collect();
         let english = splits[0];
+
+        let mut weighted_toki_pona = Vec::new();
+
         for i in 1..splits.len() {
             let (toki, weight_str) = splits[i].split_once(':')?;
             let weight = u32::from_str(weight_str).ok()?;
             let toki_res = pu.lookup(toki)?;
-            let mut toki_pona = smallvec::SmallVec::new();
-            toki_pona.push(toki_res);
-            translations.push(Translation {
-                // TODO sort this
-                // using a different scale
-                weight : weight / 10,
-                english : english.to_owned(),
-                toki_pona : CompoundWord { toki_pona },
-            })
+            weighted_toki_pona.push((toki_res, weight));
         }
+
+        // TODO improve this
+        // We want to use these weights to forma a compound word
+        // for now keep going down adding until weights drop off
+
+        if weighted_toki_pona.is_empty() {
+            return Some(translations);
+        }
+
+        let initial_weight = weighted_toki_pona[0].1;
+
+        let mut compound : smallvec::SmallVec<[TokiPonaWord; 4]> = smallvec::SmallVec::new();
+
+        for (tp, weight) in weighted_toki_pona {
+            if (weight as f64) > ((initial_weight as f64) / 2.25) { 
+                compound.push(tp);
+            }
+            else {
+                break;
+            }
+        }
+
+        translations.push(Translation {
+            weight : initial_weight / 10,
+            english : english.to_owned(),
+            toki_pona : CompoundWord { toki_pona : compound },
+        });
 
         Some(translations)
     }
