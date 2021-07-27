@@ -10,6 +10,39 @@
       <label class="entry-label error" for="entry"> Search: </label>
       <input type="text" id="entry" placeholder="loading..." disabled />
       <div id="results"></div>
+      <div id="explanation" class="card">
+        <h3>toki sama</h3>
+
+        Building a thesaurus for English using generated translations to toki pona.
+        <br/>
+        <br/>
+
+        <a href="https://tokipona.org/">toki pona</a> is a language made up of ~130 words. Translating from English to toki pona is lossy and many concepts are represented as compound words. Thinking of toki pona as a vector space we can "embed" english words by finding a translation.
+        <br/>
+        <br/>
+
+        Given an an english word we would like synonmys to, we can find words that have similar toki pona translations.
+        <br/>
+        <br/>
+
+        As an example, "poetry" is translated as "toki musi". Literally meaning amusing, creative or funny talk. We can find other words that are translated to "toki musi". An example is "joke".
+        <br/>
+        <br/>
+
+        <hr/>
+
+        <a href="https://github.com/danslocombe/toki-sama/">Github</a>.
+        <br/>
+        <br/>
+
+        Contains data from:
+        <br/>
+        <a href="http://tokipona.org/nimi_pu.txt">nimi_pu.txt</a>
+        <br/>
+        <a href="http://tokipona.org/compounds.txt">compounds.txt</a>
+        <br/>
+        <a href="https://pad.snopyta.org/lDb2EfOZQpmleu-ZktbDzg#">toki pona corpi</a>
+      </div>
     </div>
     <script src="index.js"></script>
   </body>
