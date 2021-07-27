@@ -220,7 +220,7 @@ impl TokiSama {
 
     pub fn lookup(&self, prefix: &str, pu: &Pu) -> Vec<Completion> {
         let mut completions = Vec::new();
-        let m_sub_trie = self.trie.subtrie(prefix);
+        let m_sub_trie = self.trie.get_raw_descendant(prefix);
 
         if (m_sub_trie.is_none()) {
             return completions;
@@ -228,7 +228,7 @@ impl TokiSama {
 
         let sub_trie = m_sub_trie.unwrap();
 
-        const MAX: usize = 25;
+        const MAX: usize = 5;
 
         for (completion, value_rank) in sub_trie.iter() {
             for entry_rank in &self.posting_lists[*value_rank] {

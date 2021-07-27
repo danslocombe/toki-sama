@@ -22,6 +22,8 @@ a, .card .legend .word, .card-item .item-title .asterisk {
 }
 
 .content {
+	width: auto;
+	max-width: 100%;
 	margin: auto;
 	margin-top: 0;
 	padding: 2rem;
@@ -29,7 +31,6 @@ a, .card .legend .word, .card-item .item-title .asterisk {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	width: 100%;
 }
 
 .entry-label {
@@ -111,4 +112,37 @@ a, .card .legend .word, .card-item .item-title .asterisk {
 
 #results, #suggestions, .row {
 	width: 100%;
+}
+
+#results, #suggestions, .row {
+    width: 100%;
+}
+
+.card {
+    padding: 0.5rem 1rem;
+    margin: 0;
+        margin-bottom: 0px;
+    border: 1px solid #deddda;
+    border-radius: 0.75rem;
+    margin-bottom: 2rem;
+    background-color: #fff;
+}
+
+.card-item {
+	display: flex;
+	flex: 1 1 auto;
+	justify-content: space-between;
+}
+
+.card-item .item-english {
+	font-weight: 500;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	max-width: calc(100% - 48px - 1rem);
+	white-space: nowrap;
+}
+
+.card-item .item-toki-pona {
+	height: 20px;
+	cursor: pointer;
 }
