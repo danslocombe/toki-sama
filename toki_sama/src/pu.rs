@@ -4,7 +4,7 @@ use std::io::{BufRead, BufReader};
 use std::path::Path;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub struct TokiPonaWord(u32);
+pub struct TokiPonaWord(u8);
 
 #[derive(Debug, Clone)]
 struct PuEntry {
