@@ -12,10 +12,10 @@ var resultsfield = document.getElementById("results");
 
 Promise.all(
     [
-        fetch("/pu.csv").then(x => x.text()),
-        fetch("/nimi_pu.txt").then(x => x.text()),
-        fetch("/compounds.txt").then(x => x.text()),
-        fetch("/generated_day2.tsv").then(x => x.text()),
+        fetch("pu.csv").then(x => x.text()),
+        fetch("nimi_pu.txt").then(x => x.text()),
+        fetch("compounds.txt").then(x => x.text()),
+        fetch("generated_day2.tsv").then(x => x.text()),
     ]
 )
 .then(([pu, nimi_pu, compounds, model]) => {
