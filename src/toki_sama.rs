@@ -22,6 +22,10 @@ impl CompoundWord {
         dist as u32
     }
 
+    pub fn len(&self) -> usize {
+        self.toki_pona.len()
+    }
+
     fn to_string(&self, pu: &Pu) -> String {
         let mut word = String::new();
         for tp in &self.toki_pona {
@@ -144,6 +148,8 @@ impl TokiSama {
 
         // DUMB impl
         const MAX: usize = 5;
+        let max_dist = entry.toki_pona.len().max(1) as u32;
+
         for i in 0..self.dictionary.entries.len() {
             if (i == entry_rank) {
                 continue;
@@ -151,19 +157,22 @@ impl TokiSama {
 
             let e = &self.dictionary.entries[i];
             let dist = e.toki_pona.dist(&entry.toki_pona);
-            if (dist < 2) {
+            if (dist <= max_dist) {
                 similar.push(ThesaurusResult {
                     english: e.english.clone(),
                     toki_pona: e.toki_pona.clone(),
                     toki_pona_string: e.toki_pona.to_string(pu),
                     dist,
                 });
-
-                if (similar.len() >= MAX) {
-                    break;
-                }
             }
         }
+
+        similar.sort_by(|x, y| {
+            x.dist.cmp(&y.dist)
+                .then(x.toki_pona.len().cmp(&y.toki_pona.len()))
+        });
+
+        similar = similar.into_iter().take(MAX).collect();
 
         Completion {
             english_search: search_string.to_owned(),

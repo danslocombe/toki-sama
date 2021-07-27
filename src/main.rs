@@ -67,12 +67,19 @@ pub fn main() {
 
     let toki_sama = TokiSama::new(dict);
 
-    loop {
-        for line in std::io::stdin().lock().lines() {
-            let res = toki_sama.lookup(&line.unwrap(), &pu);
-            for c in res {
-                println!("{:#?}", c);
-            }
+    println!("\n-- toki sama --\n");
+
+    for m_line in std::io::stdin().lock().lines() {
+        let line = m_line.unwrap();
+
+        if line.is_empty() {
+            continue;
         }
+
+        let res = toki_sama.lookup(&line, &pu);
+        for c in res {
+            println!("{:#?}", c);
+        }
+
     }
 }
