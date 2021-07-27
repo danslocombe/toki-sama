@@ -8,6 +8,7 @@ var query = url_params.get('q');
 var toki_sama;
 var textfield = document.getElementById("entry");
 var resultsfield = document.getElementById("results");
+var explanation = document.getElementById("explanation");
 
 
 Promise.all(
@@ -28,11 +29,15 @@ Promise.all(
 
     textfield.addEventListener('input', e => {
         const prefix = e.target.value;
+        resultsfield.innerHTML = "";
+
         if (prefix.length > 0) {
             render(prefix, toki_sama.search(prefix));
+            explanation.hidden = true;
         }
         else {
             textfield.setAttribute("placeholder", "");
+            explanation.hidden = false;
         }
     })
 })
@@ -40,8 +45,6 @@ Promise.all(
 
 function render(prefix, results_string) {
     const results = JSON.parse(results_string)
-
-    resultsfield.innerHTML = "";
 
     if (results.length == 0) {
         return;
