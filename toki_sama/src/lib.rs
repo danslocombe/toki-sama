@@ -95,6 +95,29 @@ impl Translation {
 
         Some(defs)
     }
+
+    // For now parse as individual words?
+    pub fn try_from_model(line : &str, pu : &Pu) -> Option<Vec<Self>> {
+        let mut translations = Vec::new();
+        let splits : Vec<_> = line.split('\t').collect();
+        let english = splits[0];
+        for i in 1..splits.len() {
+            let (toki, weight_str) = splits[i].split_once(':')?;
+            let weight = u32::from_str(weight_str).ok()?;
+            let toki_res = pu.lookup(toki)?;
+            let mut toki_pona = smallvec::SmallVec::new();
+            toki_pona.push(toki_res);
+            translations.push(Translation {
+                // TODO sort this
+                // using a different scale
+                weight : weight / 10,
+                english : english.to_owned(),
+                toki_pona : CompoundWord { toki_pona },
+            })
+        }
+
+        Some(translations)
+    }
 }
 
 #[derive(Debug)]
@@ -109,6 +132,7 @@ impl Dictionary {
         }
     }
     pub fn merge_with(&mut self, other: Self) {
+        // TODO merge properly
         self.entries.extend(other.entries.into_iter());
     }
 }
@@ -136,6 +160,12 @@ impl TokiSama {
             });
 
             posting_lists.get_mut(value_rank).unwrap().push(entry_rank);
+        }
+
+        for mut posting_list in posting_lists.iter_mut() {
+            posting_list.sort_by(|x, y| {
+                dictionary.entries[*y as usize].weight.cmp(&dictionary.entries[*x as usize].weight)
+            })
         }
 
         TokiSama {
@@ -181,9 +211,9 @@ impl TokiSama {
         Completion {
             english_search: search_string.to_owned(),
             entry_english: entry.english.to_owned(),
+            entry_weight : entry.weight,
             original_translation: entry.toki_pona.clone(),
             original_translation_string: entry.toki_pona.to_string(pu),
-            weight: entry.weight,
             similar,
         }
     }
@@ -226,9 +256,9 @@ pub struct ThesaurusResult {
 pub struct Completion {
     english_search: String,
     entry_english: String,
+    entry_weight : u32,
     original_translation: CompoundWord,
     original_translation_string: String,
-    weight: u32,
     similar: Vec<ThesaurusResult>,
 }
 

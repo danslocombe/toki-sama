@@ -27,6 +27,29 @@ fn read_wordset(path: &Path, pu: &Pu) -> Dictionary {
     Dictionary { entries }
 }
 
+fn read_model(pu : &Pu) -> Dictionary {
+    let mut path = get_data_path();
+    path.push("generated_day2.tsv");
+    let file = File::open(path).unwrap();
+    let reader = BufReader::new(file);
+
+    let mut entries = Vec::with_capacity(2000);
+
+    for try_line in reader.lines() {
+        let line = try_line.unwrap();
+        match Translation::try_from_model(&line, pu) {
+            Some(translations) => {
+                entries.extend(translations);
+            }
+            _ => {
+                println!("Could not parse line: {}", line);
+            }
+        }
+    }
+
+    Dictionary { entries }
+}
+
 fn read_nimi_pu(pu: &Pu) -> Dictionary {
     let mut path = get_data_path();
     path.push("nimi_pu.txt");
@@ -61,6 +84,10 @@ pub fn main() {
     println!("Reading compounds...");
     let compounds = read_compounds(&pu);
     dict.merge_with(compounds);
+
+    println!("Reading model");
+    let model = read_model(&pu);
+    dict.merge_with(model);
 
     let toki_sama = TokiSama::new(dict);
 
