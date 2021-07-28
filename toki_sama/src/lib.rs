@@ -143,12 +143,15 @@ impl Translation {
             }
         }
 
-        translations.push(Translation {
-            weight : initial_weight / 10,
-            english : english.to_owned(),
-            toki_pona : CompoundWord { toki_pona : compound },
-            source : TranslationSource::Generated,
-        });
+        // Filter some garbage
+        if (compound.len() < 8) {
+            translations.push(Translation {
+                weight : initial_weight / 10,
+                english : english.to_owned(),
+                toki_pona : CompoundWord { toki_pona : compound },
+                source : TranslationSource::Generated,
+            });
+        }
 
         Some(translations)
     }

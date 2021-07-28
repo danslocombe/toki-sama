@@ -42,7 +42,23 @@ Promise.all(
     })
 })
 
+// Get colouring classes for different translation sources
+function get_class_by_source(source) {
+    if (source === "Generated") {
+        return "generated";
+    }
+    else if (source === "NimiPu") {
+        return "nimi-pu";
+    }
+    else if (source === "Compounds") {
+        return "compounds";
+    }
+    else {
+        return "";
+    }
+}
 
+// Render a search result
 function render(prefix, results_string) {
     const results = JSON.parse(results_string)
 
@@ -50,29 +66,30 @@ function render(prefix, results_string) {
         return;
     }
 
-
+    // Card element for all results
     var card = document.createElement("ul");
     card.setAttribute("class", "card");
 
     // Create key
-    let key_elem = document.createElement("li");
-    key_elem.setAttribute("class", "card-item");
+    {
+        let key_elem = document.createElement("li");
+        key_elem.setAttribute("class", "card-item");
 
-    let english_elem = document.createElement("span");
-    english_elem.setAttribute("class", "item-english");
-    english_elem.innerHTML = "English";
+        let english_elem = document.createElement("span");
+        english_elem.setAttribute("class", "item-english");
+        english_elem.innerHTML = "English";
 
-    let toki_elem = document.createElement("span");
-    toki_elem.setAttribute("class", "item-toki-pona");
-    toki_elem.innerHTML = "toki pona";
+        let toki_elem = document.createElement("span");
+        toki_elem.setAttribute("class", "item-toki-pona");
+        toki_elem.innerHTML = "toki pona";
 
-    key_elem.appendChild(english_elem);
-    key_elem.appendChild(toki_elem);
+        key_elem.appendChild(english_elem);
+        key_elem.appendChild(toki_elem);
 
-    card.appendChild(key_elem);
+        card.appendChild(key_elem);
+    }
 
     // Start rendering results
-
     for (let result of results) {
         let title = document.createElement("li");
         title.setAttribute("class", "card-item");
@@ -80,23 +97,20 @@ function render(prefix, results_string) {
         let english_elem = document.createElement("span");
         english_elem.setAttribute("class", "item-english");
 
-		let title_english = document.createElement("h3");
-		title_english.setAttribute("class", "title");
-		title_english.innerHTML = highlight_completion(prefix, result.english_search);
+        let title_english = document.createElement("h3");
+        title_english.setAttribute("class", "title");
+        title_english.innerHTML = highlight_completion(prefix, result.english_search);
         english_elem.appendChild(title_english);
 
         let toki_elem = document.createElement("span");
-        toki_elem.setAttribute("class", "item-english");
+        toki_elem.setAttribute("class", "item-toki-pona");
 
-		let title_toki = document.createElement("h3");
-		title_toki.setAttribute("class", "title");
-		title_toki.innerHTML = result.original_translation_string;
+        let title_toki = document.createElement("h3");
+
+        title_toki.setAttribute("class", "title " + get_class_by_source(result.source));
+        title_toki.setAttribute("title", result.source);
+        title_toki.innerHTML = result.original_translation_string;
         toki_elem.appendChild(title_toki);
-
-        //let source = document.createElement("p")
-		//source.setAttribute("class", "title");
-		//source.innerHTML = " (" + result.source + ")";
-        //toki_elem.appendChild(source);
 
         title.appendChild(english_elem);
         title.appendChild(toki_elem);
@@ -112,7 +126,8 @@ function render(prefix, results_string) {
             english_elem.innerHTML = similar.english;
 
             let toki_elem = document.createElement("span");
-            toki_elem.setAttribute("class", "item-toki-pona");
+            toki_elem.setAttribute("class", "item-toki-pona " + get_class_by_source(similar.source));
+            toki_elem.setAttribute("title", similar.source);
             toki_elem.innerHTML = similar.toki_pona_string;
 
             similar_elem.appendChild(english_elem);
