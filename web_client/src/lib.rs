@@ -1,6 +1,6 @@
 use wasm_bindgen::prelude::*;
 
-use toki_sama::{TokiSama, Dictionary, Translation};
+use toki_sama::{TokiSama, Dictionary, Translation, TranslationSource};
 use toki_sama::pu::Pu;
 
 macro_rules! log {
@@ -13,10 +13,10 @@ macro_rules! log {
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
-fn parse_wordset(input : &str, pu : &Pu) -> Dictionary {
+fn parse_wordset(input : &str, pu : &Pu, source: TranslationSource) -> Dictionary {
     let mut entries = Vec::with_capacity(200);
     for line in input.lines() {
-        match Translation::try_parse(&line, pu) {
+        match Translation::try_parse(&line, pu, source) {
             Some(translations) => {
                 entries.extend(translations);
             }
@@ -62,11 +62,11 @@ impl TokiSamaSearch {
         let mut dict = Dictionary::new();
 
         log!("Reading nimi pu...");
-        let nimi_pu = parse_wordset(nimi_pu_str, &pu);
+        let nimi_pu = parse_wordset(nimi_pu_str, &pu, TranslationSource::NimiPu);
         dict.merge_with(nimi_pu);
 
         log!("Reading compounds...");
-        let compounds = parse_wordset(compounds_str, &pu);
+        let compounds = parse_wordset(compounds_str, &pu, TranslationSource::Compounds);
         dict.merge_with(compounds);
 
         // TODO improve lookup perf in wasm before enabling this

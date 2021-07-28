@@ -6,7 +6,7 @@ use std::path::{Path, PathBuf};
 
 use toki_sama::{*, pu::*};
 
-fn read_wordset(path: &Path, pu: &Pu) -> Dictionary {
+fn read_wordset(path: &Path, pu: &Pu, source: TranslationSource) -> Dictionary {
     let file = File::open(path).unwrap();
     let reader = BufReader::new(file);
 
@@ -14,7 +14,7 @@ fn read_wordset(path: &Path, pu: &Pu) -> Dictionary {
 
     for try_line in reader.lines() {
         let line = try_line.unwrap();
-        match Translation::try_parse(&line, pu) {
+        match Translation::try_parse(&line, pu, source) {
             Some(translations) => {
                 entries.extend(translations);
             }
@@ -53,13 +53,13 @@ fn read_model(pu : &Pu) -> Dictionary {
 fn read_nimi_pu(pu: &Pu) -> Dictionary {
     let mut path = get_data_path();
     path.push("nimi_pu.txt");
-    read_wordset(&path, pu)
+    read_wordset(&path, pu, TranslationSource::NimiPu)
 }
 
 fn read_compounds(pu: &Pu) -> Dictionary {
     let mut path = get_data_path();
     path.push("compounds.txt");
-    read_wordset(&path, pu)
+    read_wordset(&path, pu, TranslationSource::Compounds)
 }
 
 fn get_data_path() -> PathBuf {

@@ -93,6 +93,11 @@ function render(prefix, results_string) {
 		title_toki.innerHTML = result.original_translation_string;
         toki_elem.appendChild(title_toki);
 
+        //let source = document.createElement("p")
+		//source.setAttribute("class", "title");
+		//source.innerHTML = " (" + result.source + ")";
+        //toki_elem.appendChild(source);
+
         title.appendChild(english_elem);
         title.appendChild(toki_elem);
 

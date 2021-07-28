@@ -2,6 +2,8 @@
 
 pub mod pu;
 
+use std::collections::HashMap;
+
 use radix_trie::{Trie, TrieCommon};
 use std::str::FromStr;
 use serde::Serialize;
@@ -45,15 +47,23 @@ impl CompoundWord {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize)]
+pub enum TranslationSource {
+    NimiPu,
+    Compounds,
+    Generated,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Translation {
     weight: u32,
     toki_pona: CompoundWord,
     english: String,
+    source : TranslationSource
 }
 
 impl Translation {
-    pub fn try_parse(line: &str, pu: &Pu) -> Option<Vec<Self>> {
+    pub fn try_parse(line: &str, pu: &Pu, source : TranslationSource) -> Option<Vec<Self>> {
         if (line.is_empty() || line.starts_with("#")) {
             return Some(Vec::new());
         }
@@ -91,6 +101,7 @@ impl Translation {
                 weight,
                 english: english.to_owned(),
                 toki_pona: compound_word.clone(),
+                source,
             })
         }
 
@@ -136,11 +147,26 @@ impl Translation {
             weight : initial_weight / 10,
             english : english.to_owned(),
             toki_pona : CompoundWord { toki_pona : compound },
+            source : TranslationSource::Generated,
         });
 
         Some(translations)
     }
 }
+
+impl PartialOrd for Translation {
+    fn partial_cmp(&self, other : &Self) -> Option<std::cmp::Ordering> {
+        Some(self.source.cmp(&other.source)
+            .then(other.weight.cmp(&self.weight)))
+    }
+}
+
+impl Ord for Translation {
+    fn cmp(&self, other : &Self) -> std::cmp::Ordering {
+        self.partial_cmp(other).unwrap()
+    }
+}
+
 
 #[derive(Debug)]
 pub struct Dictionary {
@@ -153,9 +179,36 @@ impl Dictionary {
             entries: Vec::new(),
         }
     }
+
     pub fn merge_with(&mut self, other: Self) {
-        // TODO merge properly
         self.entries.extend(other.entries.into_iter());
+
+        let mut merged = Vec::new();
+        let mut merge_map : HashMap<String, Vec<Translation>> = HashMap::new();
+
+        for x in &self.entries {
+            if (!merge_map.contains_key(&x.english)) {
+                merge_map.insert(x.english.clone(), Vec::with_capacity(1));
+            }
+
+            let entries = merge_map.get(&x.english).unwrap();
+
+            let mut found_existing = false;
+            for existing in entries {
+                if (existing.toki_pona == x.toki_pona) {
+                    found_existing = true;
+                    break;
+                }
+            }
+
+            if (!found_existing) {
+                let entries = merge_map.get_mut(&x.english).unwrap();
+                entries.push(x.clone());
+                merged.push(x.clone());
+            }
+        }
+
+        self.entries = merged;
     }
 }
 
@@ -167,7 +220,7 @@ pub struct TokiSama {
 
 impl TokiSama {
     pub fn new(mut dictionary: Dictionary) -> Self {
-        dictionary.entries.sort_by(|x, y| x.weight.cmp(&y.weight));
+        dictionary.entries.sort();
 
         let mut trie = Trie::new();
         let mut posting_lists = Vec::new();
@@ -182,12 +235,6 @@ impl TokiSama {
             });
 
             posting_lists.get_mut(value_rank).unwrap().push(entry_rank);
-        }
-
-        for posting_list in posting_lists.iter_mut() {
-            posting_list.sort_by(|x, y| {
-                dictionary.entries[*y as usize].weight.cmp(&dictionary.entries[*x as usize].weight)
-            })
         }
 
         TokiSama {
@@ -218,6 +265,7 @@ impl TokiSama {
                     english: e.english.clone(),
                     toki_pona_len : e.toki_pona.len() as u32,
                     toki_pona_string: e.toki_pona.to_string(pu),
+                    source: e.source,
                     dist,
                 });
             }
@@ -235,6 +283,7 @@ impl TokiSama {
             entry_english: entry.english.to_owned(),
             entry_weight : entry.weight,
             original_translation_string: entry.toki_pona.to_string(pu),
+            source: entry.source,
             similar,
         }
     }
@@ -251,14 +300,24 @@ impl TokiSama {
 
         const MAX: usize = 5;
 
+        let mut completion_and_entry_ranks = Vec::new();
+
         for (completion, value_rank) in sub_trie.iter() {
             for entry_rank in &self.posting_lists[*value_rank] {
-                if (completions.len() >= MAX) {
-                    return completions;
-                }
-
-                completions.push(self.populate_completion(completion, *entry_rank, pu));
+                completion_and_entry_ranks.push((completion.to_string(), *entry_rank));
             }
+        }
+
+        completion_and_entry_ranks.sort_by(|(c_x, x), (c_y, y)| {
+            // Make sure that exact matches get bubbled to the top.
+            let exact_match_x = c_x == prefix;
+            let exact_match_y = c_y == prefix;
+
+            exact_match_y.cmp(&exact_match_x).then(x.cmp(y))
+        });
+
+        for (completion, entry_rank) in completion_and_entry_ranks.iter().take(MAX) {
+            completions.push(self.populate_completion(completion, *entry_rank, pu));
         }
 
         completions
@@ -271,6 +330,7 @@ pub struct ThesaurusResult {
     toki_pona_len : u32,
     toki_pona_string: String,
     dist: u32,
+    source : TranslationSource,
 }
 
 #[derive(Debug, Serialize)]
@@ -279,6 +339,7 @@ pub struct Completion {
     entry_english: String,
     entry_weight : u32,
     original_translation_string: String,
+    source : TranslationSource,
     similar: Vec<ThesaurusResult>,
 }
 
@@ -289,7 +350,7 @@ mod tests {
     #[test]
     fn parse_translation() {
         let pu = Pu::from_subset(&[("lipu", "paper"), ("moku", "food")]);
-        let parsed = Translation::try_parse("lipu moku: [menu 50]", &pu);
+        let parsed = Translation::try_parse("lipu moku: [menu 50]", &pu, TranslationSource::Compounds);
         assert!(parsed.is_some());
         assert_eq!("menu", parsed.unwrap()[0].english);
     }
