@@ -99,7 +99,7 @@ impl Translation {
             let weight = u32::from_str(weight_str).ok()?;
             defs.push(Self {
                 weight,
-                english: english.to_owned(),
+                english: english.to_ascii_lowercase(),
                 toki_pona: compound_word.clone(),
                 source,
             })
@@ -293,7 +293,8 @@ impl TokiSama {
 
     pub fn lookup(&self, prefix: &str, pu: &Pu) -> Vec<Completion> {
         let mut completions = Vec::new();
-        let m_sub_trie = self.trie.get_raw_descendant(prefix);
+        let normalized_prefix = prefix.to_lowercase();
+        let m_sub_trie = self.trie.get_raw_descendant(&normalized_prefix);
 
         if (m_sub_trie.is_none()) {
             return completions;
