@@ -58,7 +58,7 @@ a, .card .legend .word, .card-item .item-title .asterisk {
 		width: 24rem;
 	}
 	.card {
-		max-width: 26rem;
+		width: 26rem;
 	}
 	.content {
 		width: auto;
@@ -100,8 +100,9 @@ a, .card .legend .word, .card-item .item-title .asterisk {
 	to { transform:rotate(1turn) }
 }
 
-.entry-label.error:before {
-	background: url('/assets/images/error.svg') no-repeat;
+.entry-label.search:before {
+	background: url('toki-sama.png') no-repeat;
+	background-size: 100%;
 	animation: none;
 }
 
@@ -158,4 +159,9 @@ a, .card .legend .word, .card-item .item-title .asterisk {
 
 .compounds {
 	color: #861313;
+}
+
+.input-container {
+	display: flex;
+	flex-direction: column;
 }
