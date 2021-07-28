@@ -146,3 +146,16 @@ a, .card .legend .word, .card-item .item-title .asterisk {
 	height: 20px;
 	cursor: pointer;
 }
+
+.generated {
+	color: #186b92;
+}
+
+.nima-pu {
+	color: #241f31;
+}
+
+
+.compounds {
+	color: #861313;
+}
