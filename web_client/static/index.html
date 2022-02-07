@@ -19,7 +19,6 @@
       <div id="explanation" class="card">
         <h3>toki sama</h3>
 
-        A not-very-serious thesaurus for English using toki pona.
         <br/>
         <br/>
 
@@ -29,26 +28,18 @@
         <br/>
         <br/>
 
-        By translating an English word we can look for other words made of the same "building blocks".
-        <br/>
-        <br/>
-
+        The thesaurus works by translating an English word and looking for other words made of the same "building blocks".
         For example, "poetry" is translated as "toki musi" (literally amusing, creative or funny talk.)
-        We can find other words that are translated to "toki musi".
-
         The word "joke" can also be translated to to "toki musi." So from toki pona's perspective they are an exact match.
         <br/>
         <br/>
 
-        More formally, by thinking of toki pona as a vector space where each word is its own dimension,
-        we can <a href="https://en.wikipedia.org/wiki/Word_embedding">embed</a> english words by finding a translation.
-        We then look for nearby known points in this embedding space which map back to English words.
+        More formally, suppose we have a <a href="https://en.wikipedia.org/wiki/Word_embedding">vector space we want to embed English words into</a>.
+        Whether the toki pona translation of a word contains a specific toki pona term splits this space into two - either the term is in the translation or it is not.
+        Each word in toki pona defines its own bisection cutting the space into many smaller regions. By translating a word we can find the region it lays in, and by looking at
+        English words in the same or "nearby" regions we hope to find words that are "nearby" in semantic meaning.
         <br/>
         <hr/>
-
-        <a href="https://github.com/danslocombe/toki-sama/">Github</a>.
-        <br/>
-        <br/>
 
         Contains data from:
         <br/>
